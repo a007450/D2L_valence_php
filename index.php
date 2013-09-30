@@ -230,14 +230,16 @@ session_write_close();
     <input value="PUT" name="method" type="radio" id="PUTField" onclick="showData()" />PUT
     &nbsp;
     <input value="DELETE" name="method" type="radio" id="DELETEField" onclick="hideData()" />DELETE<br />
-    <b>Action:</b>&nbsp;<input name="actionField" type="text" id="actionField" style="width:600px;" /><br />
+    <b>Action:</b>&nbsp;<input name="actionField" type="text" id="actionField" style="width:400px;" />
+    <input type="button" name="submitButton" value="Submit" id="submitButton" onclick="doAPIRequest()"/><br />
     <b id="dataFieldLabel">Data:</b><br />
-    <textarea name="dataField" rows="2" cols="20" id="dataField" style="height:400px;width:600px;">
-</textarea><br />
+    
+    <textarea name="dataField" rows="2" cols="20" id="dataField" style="height:400px;width:600px;"></textarea>
+    <br />
     <b id="responseFieldLabel" hidden=true>Response:</b><br />
     <textarea name="responseField" hidden=true rows="2" cols="20" id="responseField" style="height:400px;width:600px;">
 </textarea><br />
-    <input type="button" name="submitButton" value="Submit" id="submitButton" onclick="doAPIRequest()"/>
+    
 
 </body>
 <script type="text/javascript">
@@ -263,7 +265,7 @@ session_write_close();
         document.getElementById("actionField").value = "/d2l/api/lp/1.0/users/whoami";
     }
 
-	function exampleClassList() {
+	function exampleClasslist() {
         hideData();
         /*requires authentication credentials w appropriate access*/
         document.getElementById("GETField").checked = true;

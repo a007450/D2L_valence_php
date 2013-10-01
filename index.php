@@ -86,6 +86,10 @@ session_write_close();
 <head>
     <title>Desire2Learn Auth SDK Sample</title>
     <style type = "text/css">
+    	body{
+    		font-size: 11px;
+    		font-family: Arial;
+    	}
         table.plain
         {
           border-color: transparent;
@@ -168,6 +172,7 @@ session_write_close();
                 <td>
                     <input type="text" name="userIDField" id="userIDField" style="width:20em" value="<?php echo $userId; ?>" />
                 </td>
+                <td>demo user 01 ID: vblE-N5AckOFgjRSeHLr-v</td>
             </tr>
             <tr>
                 <td>
@@ -176,15 +181,17 @@ session_write_close();
                 <td>
                     <input type="text" name="userKeyField" id="userKeyField" style="width:20em" value="<?php echo $userKey; ?>" />
                 </td>
+                <td>demo user 01 key: pceDXSau_TLQubhAxiVW3f</td>
             </tr>
         </table>
         <input type="submit" name="authBtn" value="Deauthenticate" id="deauthBtn">
     </div>
-    <span id="authNotice">Note: to authenticate against the test server, you can user username
-                          "sampleapiuser" and password "Tisabiiif".
+    <input type="submit" name="authBtn" value="Authenticate" id="authenticateBtn" />
+    <input type="button" id="manualBtn" value="Manually set credentials" onclick="setCredentials()" /><br>
+    <span id="authNotice"> This will authenticate against currently logged in user.  Use Set Manual Credentials to authenticate against sample users. <br >
+    	e.g. demo 01 user <br />SID: 314523<br />ID: vblE-N5AckOFgjRSeHLr-v <br />Key: pceDXSau_TLQubhAxiVW3f	
     </span><br />
-    <input type="submit" name="authBtn" value="Authenticate" id="authenticateBtn" /><br>
-    <input type="button" id="manualBtn" value="Manually set credentials" onclick="setCredentials()" />
+    
     <input type="submit" name="authBtn" value="Save" id="manualAuthBtn" hidden=true />
     </form>
 
@@ -196,15 +203,17 @@ session_write_close();
             </td>
             <td>
                 <button type="button" onclick="exampleGetVersions()">
-                    Get Versions</button>
+                    Get Versions</button> 
             </td>
+            <td>lp, le current version is 1.3</td>
         </tr>
         <tr>
             <td></td>
             <td>
-                <button type="button" onclick="exampleWhoAmI()">
-                    WhoAmI</button>
+                <button type="button" onclick="exampleOrgUnit()">
+                    OrgUnit</button> 
             </td>
+            <td>OrgUnitId identifies the current D2L course. You'll need to check for it or preset it. <br />Current dev course OrgunitId: 159492 </td>
         </tr>
         <tr>
             <td></td>
@@ -212,12 +221,26 @@ session_write_close();
                 <button type="button" onclick="exampleClasslist()">
                     Class List</button>
             </td>
+            <td>Use this to get list of SIDs <a href="http://docs.valence.desire2learn.com/res/enroll.html#Enrollment.ClasslistUser" target="_balnk">Valence Reference</a></td>
         </tr>
         <tr>
             <td></td>
             <td>
-                <button type="button" onclick="exampleCreateUser()">
-                    Create User</button>
+                <button type="button" onclick="getGradeObjects()">
+                    Grade Objects</button>
+            </td>
+            <td>To get GradeObjIds. To get values, loop through each GradeObjID for each SID, use: <br /> /d2l/api/le/(version#)/(OrgunitID)/grades/(GradeObjIds)/values/(SID)
+			<br /> <a href="http://docs.valence.desire2learn.com/res/grade.html#id1" target="_balnk">Valence Reference</a>
+			</td>
+        </tr>
+        <tr>
+            <td></td>
+            <td>
+                <button type="button" onclick="exampleWhoAmI()">
+                    WhoAmI</button>
+            </td>
+            <td>
+            	returns current authenticated user
             </td>
         </tr>
     </table>
@@ -262,20 +285,29 @@ session_write_close();
     function exampleWhoAmI() {
         hideData();
         document.getElementById("GETField").checked = true;
-        document.getElementById("actionField").value = "/d2l/api/lp/1.0/users/whoami";
+        document.getElementById("actionField").value = "/d2l/api/lp/1.3/users/whoami";
     }
-
+	function exampleOrgUnit(){
+		hideData();
+        document.getElementById("GETField").checked = true;
+        document.getElementById("actionField").value = "/d2l/api/lp/1.3/enrollments/myenrollments/";
+	}
 	function exampleClasslist() {
         hideData();
         /*requires authentication credentials w appropriate access*/
         document.getElementById("GETField").checked = true;
-        document.getElementById("actionField").value = "/d2l/api/le/1.2/159492/classlist/";
+        document.getElementById("actionField").value = "/d2l/api/le/1.3/159492/classlist/";
     }
-    
+    function getGradeObjects() {
+    	hideData();
+        /*requires authentication credentials w appropriate access*/
+        document.getElementById("GETField").checked = true;
+        document.getElementById("actionField").value = "/d2l/api/le/1.3/159492/grades/";
+    }
     function exampleCreateUser() {
         showData();
         document.getElementById("POSTField").checked = true;
-        document.getElementById("actionField").value = "/d2l/api/lp/1.0/users/";
+        document.getElementById("actionField").value = "/d2l/api/lp/1.3/users/";
         document.getElementById("dataField").value = "{\n  \"OrgDefinedId\": \"<string>\",\n  \"FirstName\": \"<string>\",\n  \"MiddleName\": \"<string>\",\n  \"LastName\": \"<string>\",\n  \"ExternalEmail\": \"<string>|null\",\n  \"UserName\": \"<string>\",\n  \"RoleId\": \"<number>\",\n  \"IsActive\": \"<boolean>\",\n  \"SendCreationEmail\": \"<boolean>\"\n}";
     }
 

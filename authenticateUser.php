@@ -17,14 +17,6 @@
 
 require_once 'libsrc/D2LAppContextFactory.php';
 
-$host = $_GET['hostField'];
-$port = $_GET['portField'];
-$appId = $_GET['appIDField'];
-$appKey = $_GET['appKeyField'];
-$scheme = isset($_GET['schemeField']) ? 'https' : 'http';
-$userId = $_GET['userIDField'];
-$userKey = $_GET['userKeyField'];
-
 if($_GET['authBtn'] == 'Deauthenticate') {
     session_start();
     unset($_SESSION['userId']);
@@ -56,7 +48,7 @@ if($_GET['authBtn'] == 'Deauthenticate') {
     header("location: index.php");
 } else {
     $redirectPage = $_SERVER["HTTP_REFERER"];
-
+	
     session_start();
     $_SESSION['appKey'] = $appKey;
     $_SESSION['appId'] = $appId;
@@ -72,5 +64,7 @@ if($_GET['authBtn'] == 'Deauthenticate') {
 
     $url = $authContext->createUrlForAuthenticationFromHostSpec($hostSpec, $redirectPage);
     header("Location: $url");
+	
+	
 }
 ?>

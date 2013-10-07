@@ -15,39 +15,16 @@
  * the License.
  */
 	require_once 'libsrc/D2LAppContextFactory.php';	
+	require_once 'data.php';
+	
 	session_start();
-	if (isset($_SESSION['appId'])) {
-	    $appId = $_SESSION['appId'];
-	} else {
-	    // default Application ID
-	    $_SESSION['appId']= $appId;
-	}
+	$host = $_SESSION['host'];
+	$port = $_SESSION['port'];
+	$scheme = $_SESSION['scheme'];
+	$appId = $_SESSION['appId'];
+	$appKey = $_SESSION['appKey'];
+	$orgUnit = $_SESSION['orgUnit'];
 	
-	if (isset($_SESSION['appKey'])) {
-	    $appKey = $_SESSION['appKey'];
-	} else {
-	    // default Application key
-	    $_SESSION['appKey'] = $appKey;
-	}
-	
-	if (isset($_SESSION['host'])) {
-	    $host = $_SESSION['host'];
-	} else {
-	    $host="learn.bcit.ca";
-	}
-	
-	if (isset($_SESSION['port'])) {
-	    $port = $_SESSION['port'];
-	} else {
-	    $port=443;
-	}
-	
-	if (isset($_SESSION['scheme'])) {
-	    $scheme = $_SESSION['scheme'];
-	} else {
-	    $scheme = 'https';
-	}
-
 	$authContextFactory = new D2LAppContextFactory();
 	$authContext = $authContextFactory->createSecurityContext($appId, $appKey);
 	$hostSpec = new D2LHostSpec($host, $port, $scheme);
@@ -75,11 +52,10 @@
 	    }
 	} else {
 	    $userId = '';
-	    $userKey = '';
-		
+	    $userKey = '';	
 	}
 	
-session_write_close();
+	session_write_close();
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -103,19 +79,17 @@ session_write_close();
     var urlRef1 = "/d2l/api/lp/1.3/", urlRef2 = "/d2l/api/le/1.3/";
     
     $( document ).ready( function() {
+    	
     	var authenticated = <?php echo "'".$userId."'"; ?>;
     	
     	host = <?php echo "'".$host."'"; ?>,
     	port = <?php echo "'".$port."'"; ?>,
     	scheme = <?php echo "'".$scheme."'"; ?>,
     	targetUrl = <?php echo "'".$targetUrlRef."'"; ?>,
-    	orgUnit = <?php echo "'".$orgUnit."'"; ?>;
+    	orgUnit = <?php echo "'".$orgUnit."'"; ?>; 
     	
     	Init(authenticated);
     });
-    
-    $("body").ajaxError(function(e, request) {
-        console.log("AJAX error!");
-    });
+   
 </script>
 </html>

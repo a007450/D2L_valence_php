@@ -16,6 +16,7 @@
  */
 
 require_once 'libsrc/D2LAppContextFactory.php';
+require_once 'data.php';
 
 if($_GET['authBtn'] == 'Deauthenticate') {
     session_start();
@@ -23,48 +24,23 @@ if($_GET['authBtn'] == 'Deauthenticate') {
     unset($_SESSION['userKey']);
     session_write_close();
     header("location: index.php");
-} else if($_GET['authBtn'] == 'Load Defaults') {
-    session_start();
-    $_SESSION = array();
-    if (ini_get("session.use_cookies")) {
-        $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000,
-            $params["path"], $params["domain"],
-            $params["secure"], $params["httponly"]
-        );
-    }
-    session_destroy();
-    header("location: index.php");
-} else if ($_GET['authBtn'] == 'Save') {
-    session_start();
-    $_SESSION['appKey'] = $appKey;
-    $_SESSION['appId'] = $appId;
-    $_SESSION['host'] = $host;
-    $_SESSION['port'] = $port;
-    $_SESSION['scheme'] = $scheme;
-    $_SESSION['userId'] = $userId;
-    $_SESSION['userKey'] = $userKey;
-    session_write_close();
-    header("location: index.php");
 } else {
     $redirectPage = $_SERVER["HTTP_REFERER"];
+	session_start();
+	$host = $_SESSION['host'];
+	$port = $_SESSION['port'];
+	$scheme = $_SESSION['scheme'];
+	$appId = $_SESSION['appId'];
+	$appKey = $_SESSION['appKey'];
+	session_write_close();
 	
-    session_start();
-    $_SESSION['appKey'] = $appKey;
-    $_SESSION['appId'] = $appId;
-    $_SESSION['host'] = $host;
-    $_SESSION['port'] = $port;
-    $_SESSION['scheme'] = $scheme;
-    session_write_close();
-
     $authContextFactory = new D2LAppContextFactory();
     $authContext = $authContextFactory->createSecurityContext($appId, $appKey);
 
-    $hostSpec = new D2LHostSpec($host, $port, $scheme);
+    $hostSpec = new D2LHostSpec($host , $port, $scheme);
 
     $url = $authContext->createUrlForAuthenticationFromHostSpec($hostSpec, $redirectPage);
     header("Location: $url");
-	
-	
+
 }
 ?>

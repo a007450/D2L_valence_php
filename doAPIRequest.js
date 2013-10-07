@@ -54,22 +54,19 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
 				} else {
 					try {
 						// display data obj
-						var obj = JSON.parse(data);
-						
-						
+						var obj = JSON.parse(data);		
 						output = "";
 								
 						APIObj[objkey] = obj;
 												
 					} catch(e) {
 						output = "Unexpected non-JSON response from the server: " + data ;
-						$('#responseField').html(output);
+						//console.log("ajax error: " + output);
 					}
 				}		
 			},
-			error: function(jqXHR, textStatus, errorThrown) {
-				
-				$("#responseField").html("Ajax error");
+			error: function(jqXHR, textStatus, settings, errorThrown) {
+				//console.log("ajax error: " +objkey + ": " + settings + "<br />");
 			}
 		});
 	
@@ -77,6 +74,12 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
  }
  
 function ManageObjs() {
+	
+	var id = APIObj["whoami"].Identifier;
+	
+	$('#responseField').append("<b>id: </b>" + id + "<br />" );
+	//$('#responseField').append("<b>"+title+ "</b> <br />" );
+	
 	
 	for (var key in APIObj) {
 		
@@ -90,13 +93,39 @@ function ManageObjs() {
 		$('#responseField').append(textArea);
 		$('#responseField').append("<br / ><br />");
 	};
-		
+	
+	// loop through all gradeobjects to get gradeobjid	
 	for (var i = 0 ; i < APIObj.gradeobj.length; i++) {
-		// loop through all gradeobjects to get gradeobjid
-		// console.log(APIObj.gradeobj[i].Id);
+		
 		var gradeobjid = APIObj.gradeobj[i].Id;
 		var qstring = urlRef2 + orgUnit +"/grades/" + gradeobjid +"/values/";
-		console.log(qstring);
-	};
+		
+		// loop through class list for studentid	
+		var classSize = APIObj.classlist.length;
+		if (classSize > 0 ) {
+						
+			for (var j = 0; j < classSize; j++) {
+				var studentid = APIObj.classlist[j]['Identifier'];
+				var reqString = qstring + studentid;
+				var key = "q"+i+"s_" + j;
+				
+				$.when(
+		    		
+		    		doAPIRequest(host, port, scheme, reqString, 'GET', '', key)    			
+		    	
+		    	).then( function(obj){
+		    		var o = $.parseJSON(obj);
+		    		
+		    		//console.log(o)
+		    		$('#responseField').append(": " + o.GradeObjectName + ": " + o.PointsNumerator + "<br />");
+		    		
+		    	});
+			}
+			
+		}
+		
 	
+	}// end gradeobjid loop
+
 }
+

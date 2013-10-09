@@ -22,12 +22,13 @@ function Init(authenticated) {
     		gradeobjs = urlRefle+ orgUnit + "/grades/";
     		
     	$.when( //listen for ajax complete
-    		doAPIRequest(host, port, scheme, whoami, 'GET', '', "whoami"),
+    		//doAPIRequest(host, port, scheme, whoami, 'GET', '', "whoami"),
     		//doAPIRequest(host, port, scheme, classlist, 'GET', '', "classlist"),
+    		//doAPIRequest(host, port, scheme, enrollments, 'GET', '', "enrollments"),
     		doAPIRequest(host, port, scheme, groups, 'GET', '', "groups"),
-    		doAPIRequest(host, port, scheme, enrollments, 'GET', '', "enrollments"),
     		doAPIRequest(host, port, scheme, gradeobjs, 'GET', '', "gradeobj")
-    	).done( function(){
+    		
+    	).done( function(){	
     		ManageObjs();
     	});
     }
@@ -81,12 +82,12 @@ function ManageObjs() {
 		var obj = APIObj[key],
 			title = "<b>APIObj["+ key +"]</b>";
 		var output = JSON.stringify(obj, null, 4);
-		var textArea = $('<textarea style="width:150px; display:inline-block" />'); 
+		var textArea = $('<textarea style="width:15px; display:inline-block; height: 15px"/>'); 
 		
 		textArea.text(output);
-		$('#responseField').append("<b>"+title+ "</b> <br />" );
+		$('#responseField').append("<b>"+title+ "</b> " );
 		$('#responseField').append(textArea);
-		$('#responseField').append("<br / ><br />");
+		$('#responseField').append(" &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;");
 	};
 	
 	// get quiz scores -- loop through groups --> get SIDs in each group; 
@@ -106,20 +107,19 @@ function ManageObjs() {
 			var sid = sid_ar[s];
 			
 			// loop through each quiz to get mark
-			
-			
 			for (var j = 0 ; j < gradeobj.length; j++) {
 				
 				var gradeobjid = APIObj.gradeobj[j].Id;
 				var qstring = urlRefle + orgUnit +"/grades/" + gradeobjid +"/values/" + sid;
-				var k = "grp" + i + "_sid" + s;
+				var k = "grp" + i + "_sid" + s + "_q" + j;
 				
 				$.when( 
-					//console.log(k),
 					doAPIRequest(host, port, scheme, qstring, 'GET', '', k)
 				).done( function(){
 		    		count ++;
 		    		
+		    		var percent = Math.round(count / ttl * 100);
+		    		$('#output').html("Getting scores... " + percent + "%");
 		    		if (count == ttl) {
 		    			BuildQuizTable();
 		    		}
@@ -127,10 +127,7 @@ function ManageObjs() {
 			};
 		};
 	};
-	
-	
-	
-	
+		
 }
 
 function getTtl() {
@@ -151,36 +148,49 @@ function getTtl() {
 function BuildQuizTable(){
 
 	var groups = APIObj["groups"] , 
-		gradeobjs = APIObj["gradeobj"].length,
-		html = "<table>";
+		gradeobjs = APIObj["gradeobj"],
+		html = "";
 	
-	//html += "<tr><th width = '150'> Group </th> <th width = '150'> SID </th> <th width = '150'> Score </th> </tr>";
-	console.log(APIObj["grp3_sid4"]);
-	
+	// for each group
 	for (var i = 0 ; i < groups.length; i++) {
 		var grp = groups[i].Name;
 		var sid_ar = groups[i].Enrollments; // array of SIDs in group
 		
+		html += "<h1>" + grp + "</h1>" 	+ "<table><tr><th align='left' width = '50'> sid </th> ";
+		
+		// header row
+		for (var g = 1 ; g <= gradeobjs.length; g++) {
+			html+= "<th width = '50'> Q" + g + "</th>" ;  
+			
+			if (g == gradeobjs.length)
+				html+= "</tr>";
+		}
+
 		// for each student
 		for (var s = 0 ; s < sid_ar.length ; s++) {
 			var sid = sid_ar[s];
 			
-			for (var j = 0 ; j < gradeobjs; j++) {
-				var k = "grp" + i + "_sid" + s;
-				/*
-				html += "<tr><td> " + grp
-				+" </td> <td> "+ sid
-				+" </td> <td> "+ APIObj[k]["WeightedNumerator"]; 
-				+" </td> </tr>";
-				*/
-				console.log(k);
+			html += "<tr><td> " + sid +" </td>";
+			
+			// for each quiz
+			for (var j = 0 ; j < gradeobjs.length; j++) {
+				
+				var k = "grp" + i + "_sid" + s + "_q" + j;
+					score = (APIObj[k]["PointsNumerator"] != null)? APIObj[k]["PointsNumerator"] : "na";
+				
+				
+				html += " <td align='center' > "+ score +" </td> ";
+				
+				if (j == gradeobjs.length - 1)
+					html+= "</tr>";
 			}
 			
 		}
+		
+		html += "</table><br />";
 	}
-	
-	//html += "</table>"
-	
-	//$('#output').append(html);
+
+	$('#output').html(html);
 	
 }
+

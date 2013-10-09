@@ -14,8 +14,8 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  */
-	require_once 'libsrc/D2LAppContextFactory.php';	
-	require_once 'data.php';
+require_once 'libsrc/D2LAppContextFactory.php';	
+require_once 'data.php';
 
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
@@ -32,8 +32,8 @@
 	</form>
 	 	
  	<div id="responseField"></div>
- 	<div id="output"></div>
- 	
+ 	<div id="output">Loading ... </div>
+ 
     
 </body>
 <script type="text/javascript">

@@ -15,17 +15,18 @@ function Init(authenticated) {
     	// authenticated
     	$("form").remove();
     		
-    	var whoami = urlRef1 + "users/whoami",
-    		enrollments = urlRef1 + "enrollments/myenrollments/",
-    		classlist = urlRef2 + orgUnit + "/classlist/",
-    		gradeobjs = urlRef2+ orgUnit + "/grades/";
+    	var whoami = urlReflp + "users/whoami",
+    		enrollments = urlReflp + "enrollments/myenrollments/",
+    		classlist = urlRefle + orgUnit + "/classlist/",
+    		groups = urlReflp + orgUnit + "/groupcategories/" + groupcatId + "/groups/",
+    		gradeobjs = urlRefle+ orgUnit + "/grades/";
     		
     	$.when( //listen for ajax complete
     		doAPIRequest(host, port, scheme, whoami, 'GET', '', "whoami"),
-    		doAPIRequest(host, port, scheme, classlist, 'GET', '', "classlist"),
+    		//doAPIRequest(host, port, scheme, classlist, 'GET', '', "classlist"),
+    		doAPIRequest(host, port, scheme, groups, 'GET', '', "groups"),
     		doAPIRequest(host, port, scheme, enrollments, 'GET', '', "enrollments"),
     		doAPIRequest(host, port, scheme, gradeobjs, 'GET', '', "gradeobj")
-    			
     	).done( function(){
     		ManageObjs();
     	});
@@ -74,13 +75,7 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
  }
  
 function ManageObjs() {
-	
-	var id = APIObj["whoami"].Identifier;
-	
-	$('#responseField').append("<b>id: </b>" + id + "<br />" );
-	//$('#responseField').append("<b>"+title+ "</b> <br />" );
-	
-	
+	// output for debug and testing only
 	for (var key in APIObj) {
 		
 		var obj = APIObj[key],
@@ -94,38 +89,98 @@ function ManageObjs() {
 		$('#responseField').append("<br / ><br />");
 	};
 	
-	// loop through all gradeobjects to get gradeobjid	
-	for (var i = 0 ; i < APIObj.gradeobj.length; i++) {
+	// get quiz scores -- loop through groups --> get SIDs in each group; 
+	// loop through quizzes to get scores for each SID
+	var groups = APIObj["groups"], 
+		gradeobj = APIObj["gradeobj"],
+		count = 0;
+	var ttl = getTtl();
+	
+	for (var i = 0 ; i < groups.length; i++) {
 		
-		var gradeobjid = APIObj.gradeobj[i].Id;
-		var qstring = urlRef2 + orgUnit +"/grades/" + gradeobjid +"/values/";
+		var sid_ar = groups[i].Enrollments; // array of SIDs in group
 		
-		// loop through class list for studentid	
-		var classSize = APIObj.classlist.length;
-		if (classSize > 0 ) {
-						
-			for (var j = 0; j < classSize; j++) {
-				var studentid = APIObj.classlist[j]['Identifier'];
-				var reqString = qstring + studentid;
-				var key = "q"+i+"s_" + j;
+		// for each student
+		for (var s = 0 ; s < sid_ar.length ; s++) {
+			
+			var sid = sid_ar[s];
+			
+			// loop through each quiz to get mark
+			
+			
+			for (var j = 0 ; j < gradeobj.length; j++) {
 				
-				$.when(
+				var gradeobjid = APIObj.gradeobj[j].Id;
+				var qstring = urlRefle + orgUnit +"/grades/" + gradeobjid +"/values/" + sid;
+				var k = "grp" + i + "_sid" + s;
+				
+				$.when( 
+					//console.log(k),
+					doAPIRequest(host, port, scheme, qstring, 'GET', '', k)
+				).done( function(){
+		    		count ++;
 		    		
-		    		doAPIRequest(host, port, scheme, reqString, 'GET', '', key)    			
-		    	
-		    	).then( function(obj){
-		    		var o = $.parseJSON(obj);
-		    		
-		    		//console.log(o)
-		    		$('#responseField').append(": " + o.GradeObjectName + ": " + o.PointsNumerator + "<br />");
-		    		
+		    		if (count == ttl) {
+		    			BuildQuizTable();
+		    		}
 		    	});
+			};
+		};
+	};
+	
+	
+	
+	
+}
+
+function getTtl() {
+	var groups = APIObj["groups"] , 
+		gradeobjs = APIObj["gradeobj"].length,
+		ttl = 0;
+		
+	for (var i = 0 ; i < groups.length; i++) {
+		var t = (groups[i].Enrollments.length ) * gradeobjs;
+		
+		ttl += t;
+
+	}
+	
+	return ttl;
+}
+
+function BuildQuizTable(){
+
+	var groups = APIObj["groups"] , 
+		gradeobjs = APIObj["gradeobj"].length,
+		html = "<table>";
+	
+	//html += "<tr><th width = '150'> Group </th> <th width = '150'> SID </th> <th width = '150'> Score </th> </tr>";
+	console.log(APIObj["grp3_sid4"]);
+	
+	for (var i = 0 ; i < groups.length; i++) {
+		var grp = groups[i].Name;
+		var sid_ar = groups[i].Enrollments; // array of SIDs in group
+		
+		// for each student
+		for (var s = 0 ; s < sid_ar.length ; s++) {
+			var sid = sid_ar[s];
+			
+			for (var j = 0 ; j < gradeobjs; j++) {
+				var k = "grp" + i + "_sid" + s;
+				/*
+				html += "<tr><td> " + grp
+				+" </td> <td> "+ sid
+				+" </td> <td> "+ APIObj[k]["WeightedNumerator"]; 
+				+" </td> </tr>";
+				*/
+				console.log(k);
 			}
 			
 		}
-		
+	}
 	
-	}// end gradeobjid loop
-
+	//html += "</table>"
+	
+	//$('#output').append(html);
+	
 }
-

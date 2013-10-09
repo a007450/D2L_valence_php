@@ -18,13 +18,14 @@
 require_once 'libsrc/D2LAppContextFactory.php';
 require_once 'data.php';
 
-if($_GET['authBtn'] == 'Deauthenticate') {
+function Deauthenticate() {
     session_start();
     unset($_SESSION['userId']);
     unset($_SESSION['userKey']);
     session_write_close();
     header("location: index.php");
-} else {
+}
+function Authenticate(){
     $redirectPage = $_SERVER["HTTP_REFERER"];
 	session_start();
 	$host = $_SESSION['host'];

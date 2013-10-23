@@ -7,7 +7,7 @@
 	$_SESSION['scheme'] = 'https';
 	$_SESSION['userId'] = 'k5NOsx3JYM3447WaEp19AO';
 	$_SESSION['userKey'] = 'IBzfXNTS8yn2CXQgu7n57N';
-	$_SESSION['targetUrlRef'] = "https://commons.bcit.ca/gamefication";
+	
 	$_SESSION['orgUnit'] = "159492";  // enter org unit or "" to grab the orgUnit from course home pg url
 	$_SESSION['groupcatId'] = "57756";
 	

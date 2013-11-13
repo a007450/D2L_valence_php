@@ -52,22 +52,3 @@
 
 	session_write_close();
 ?>
-	    $userId = $opContext->getUserId();
-	    $userKey = $opContext->getUserKey();
-	    $_SESSION['userId'] = $userId;
-	    $_SESSION['userKey'] = $userKey;
-	} elseif (isset($_SESSION['userId'])) {
-	    // use default IDs 
-	    $userId = $_SESSION['userId'];
-	    if (isset($_SESSION['userKey'])) {
-	        $userKey = $_SESSION['userKey'];
-	    } else {
-	        $userKey = '';
-	    }
-	} else {
-	    $userId = '';
-	    $userKey = '';	
-	}
-
-	session_write_close();
-?>

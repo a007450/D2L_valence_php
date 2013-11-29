@@ -7,35 +7,8 @@
  ******************************************************************************/
 var APIObj = {};
 
-function Init(authenticated) {
-	if (authenticated=="") { 
-    	// not authenticated, trigger authentication
-    	$("form").submit();
-    }else { 
-    	// authenticated
-    	$("form").remove();
-    		
-    	var whoami = urlReflp + "users/whoami",
-    		enrollments = urlReflp + "enrollments/myenrollments/",
-    		classlist = urlRefle + orgUnit + "/classlist/",
-    		groups = urlReflp + orgUnit + "/groupcategories/" + groupcatId + "/groups/",
-    		gradeobjs = urlRefle+ orgUnit + "/grades/";
-    		
-    	$.when( //listen for ajax complete
-    		//doAPIRequest(host, port, scheme, whoami, 'GET', '', "whoami"),
-    		//doAPIRequest(host, port, scheme, classlist, 'GET', '', "classlist"),
-    		//doAPIRequest(host, port, scheme, enrollments, 'GET', '', "enrollments"),
-    		doAPIRequest(host, port, scheme, groups, 'GET', '', "groups"),
-    		doAPIRequest(host, port, scheme, gradeobjs, 'GET', '', "gradeobj")
-    		
-    	).done( function(){	
-    		ManageObjs();
-    	});
-    }
-}
-
 function doAPIRequest(host, port, scheme, req, method, data, objkey) {
-
+		console.log(objkey );
 		return $.ajax({
 			url: "doRequest.php",
 			data: {
@@ -43,6 +16,7 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
 				port: port,
 				scheme: scheme,
 				anon: false,
+				objkey: objkey,
 				apiRequest: req,
 				apiMethod: method,
 				data: data,
@@ -68,13 +42,26 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
 				}		
 			},
 			error: function(jqXHR, textStatus, settings, errorThrown) {
-				//console.log("ajax error: " +objkey + ": " + settings + "<br />");
+				console.log("ajax error: " +objkey + ": " + settings + "");
 			}
 		});
 	
 
- }
- 
+}
+
+function GetAllOfTheInfosAsMasterUser(host, port, scheme, obj) {
+	
+    	$.when( //listen for ajax complete
+    		doAPIRequest(host, port, scheme, obj.groups, 'GET', '', "groups"),
+    		doAPIRequest(host, port, scheme, obj.gradeobjs, 'GET', '', "gradeobj")
+    		
+    	).done( function(){	
+    		console.log(APIObj);
+    	});
+	
+	
+}
+
 function ManageObjs() {
 	// output for debug and testing only
 	for (var key in APIObj) {

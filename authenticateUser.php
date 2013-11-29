@@ -23,24 +23,30 @@ function Deauthenticate() {
     unset($_SESSION['userId']);
     unset($_SESSION['userKey']);
     session_write_close();
-    header("location: index.php");
+    header("location: index2.php");
 }
 function Authenticate(){
-    $redirectPage = $_SERVER["HTTP_REFERER"];
+    
 	session_start();
+	//clear settings
+	unset($_SESSION['userId']);
+    unset($_SESSION['userKey']);
+	
 	$host = $_SESSION['host'];
 	$port = $_SESSION['port'];
 	$scheme = $_SESSION['scheme'];
 	$appId = $_SESSION['appId'];
 	$appKey = $_SESSION['appKey'];
+	$orgUnit = $_SESSION['orgUnit'];
+	$groupcatId = $_SESSION['groupcatId'];
+	$redirectPage = $_SESSION["HTTP_REFERER"];
+	
 	session_write_close();
 	
-    $authContextFactory = new D2LAppContextFactory();
-    $authContext = $authContextFactory->createSecurityContext($appId, $appKey);
-
-    $hostSpec = new D2LHostSpec($host , $port, $scheme);
-
-    $url = $authContext->createUrlForAuthenticationFromHostSpec($hostSpec, $redirectPage);
+	$authContextFactory = new D2LAppContextFactory();
+	$authContext = $authContextFactory->createSecurityContext($appId, $appKey);
+	$hostSpec = new D2LHostSpec($host, $port, $scheme);
+	$url = $authContext->createUrlForAuthenticationFromHostSpec($hostSpec, $redirectPage);
     header("Location: $url");
 
 }

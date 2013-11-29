@@ -40,8 +40,17 @@ foreach (array('appId', 'appKey') as $e) {
 
 $appKey = $_SESSION['appKey'];
 $appId = $_SESSION['appId'];
-$userId = $_SESSION['userId'];
-$userKey = $_SESSION['userKey'];
+
+$userId = $_SESSION['defaultUserId'];
+$userKey = $_SESSION['defaultUserKey'];
+
+
+if ($_GET['objkey'] == 'whoami') {
+	$userId = $_SESSION['userId'];
+	$userKey = $_SESSION['userKey'];
+}
+
+
 $_SESSION['host'] = $host;
 $_SESSION['port'] = $port;
 $_SESSION['scheme'] = $scheme;

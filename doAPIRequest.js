@@ -8,7 +8,7 @@
 var APIObj = {};
 
 function doAPIRequest(host, port, scheme, req, method, data, objkey) {
-		console.log(objkey );
+		console.log(objkey);
 		return $.ajax({
 			url: "doRequest.php",
 			data: {

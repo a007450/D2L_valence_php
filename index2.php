@@ -1,5 +1,5 @@
 <?php
-	require_once 'libsrc/D2LAppContextFactory.php';
+	//require_once 'libsrc/D2LAppContextFactory.php';
 	$_host; $_port; $_scheme; $_targetUrl; $_orgUnit;
     
     $urlReflp = "/d2l/api/lp/1.3/"; 
@@ -68,17 +68,18 @@
 			
 			//listen for ajax complete
 			$.when( 
-				// get current --> this will save returned whoami array to APIObj["whoami"]
-	    		doAPIRequest(host, port, scheme, <?php echo "'".$whoami."'" ?>, 'GET', '', "whoami")
+				doAPIRequest(host, port, scheme, <?php echo "'".$whoami."'" ?>, 'GET', '', "whoami"),
+	    		doAPIRequest(host, port, scheme, <?php echo "'".$groups."'" ?>, 'GET', '', "groups"),
+				doAPIRequest(host, port, scheme, <?php echo "'".$gradeobjs."'" ?>, 'GET', '', "gradeobjs")
 	    		
 	    	).done( function(){	
-	    		// if ajax call ok, whoami should be stored in the APIObj
-	    		console.log(APIObj);
-	    		var s = APIObj["whoami"].FirstName + " " + APIObj["whoami"].LastName ;
-	    		$("#output").html("Current User: " + s);
-	    		    		
 	    		
-	    		//GetAllOfTheInfosAsMasterUser(host, port, scheme, obj_queries);
+				// aftert all ajax calls done... check returned objects stored in APIObj
+				
+	    		console.log(APIObj);
+	    		//var s = APIObj["whoami"].FirstName + " " + APIObj["whoami"].LastName ;
+	    		//$("#output").html("Current User: " + s);	
+	    		
 	    	});	 	
 	    	
 			 	

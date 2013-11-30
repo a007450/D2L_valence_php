@@ -18,27 +18,38 @@
 	$_SESSION['userId'] =  $_GET["x_a"];
 	$_SESSION['userKey'] =  $_GET["x_b"];
 	
-	session_write_close();
-	
-	// build query strings
-	$whoami = $urlReflp . "users/whoami";
-    //$enrollments = $urlReflp . "enrollments/myenrollments/";
-    $classlist = $urlRefle . $_orgUnit . "/classlist/";
-    $groups = $urlReflp . $_orgUnit . "/groupcategories/" . $_groupcatId . "/groups/";
-    $gradeobjs = $urlRefle . $_orgUnit . "/grades/";
-	
-	$ar_queries = array(
-		'classlist' => $classlist, 
-		'groups' => $groups, 
-		'gradeobjs' => $gradeobjs
-	);
-	
-	if ($orgUnit == "") {
+	if (!$orgUnit) {
 		// --- ONLY WORKS if widget is on d2l course home page-- grabs from URL 
 		// https://learn.bcit.ca/d2l/home/{OUID}
 		$url = $_SERVER["HTTP_REFERER"];
 		$_SESSION['orgUnit'] = substr($url, 5+strpos($url, "home/"));
+		$_orgUnit = ($_SESSION['orgUnit'])?  $_SESSION['orgUnit'] : "159492";
+		
 	}
+	
+	session_write_close();
+	
+	// build query strings
+	$whoami = $urlReflp . "users/whoami";
+    $classlist = $urlRefle . $_orgUnit . "/classlist/";
+    $groups = $urlReflp . $_orgUnit . "/groupcategories/" . $_groupcatId . "/groups/";
+    $gradeobjs = $urlRefle . $_orgUnit . "/grades/";
+	
+	$sessionVars = array(
+		'host' => $_host,
+		'port' => $_port,
+		'scheme' => $_scheme,
+		'orgUnit' => $_orgUnit,
+		'groupcatId' => $_groupcatId,
+		'urlRefle' => $urlRefle,
+		'whoami' => $whoami,
+		'classlist' => $classlist, 
+		'groups' => $groups, 
+		'gradeobjs' => $gradeobjs
+		
+	);
+	
+	
 	
 ?>
 
@@ -48,42 +59,56 @@
 <head>
 	<meta charset="UTF-8">
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type = "text/javascript"></script>
-	<script src="doAPIRequest.js"></script>
+	<script> src="plugins/" </script>
+	<script> src="plugins/__jquery.tablesorter/jquery.tablesorter.js" </script>
+	<link href="css/tablestyle.css" type="text/css" rel="stylesheet">
+	<link href="css/default.css" type="text/css" rel="stylesheet">
 	
 </head>
 <body>
-	<div id="output">	</div>
+	<div id="leaderboard_container">	
+		<table id="table_scores" class="tablesorter"> 
+		<thead> 
+			<tr> 
+			    <th></th> 
+			    <th></th> 
+			    <th></th> 
+			    <th></th> 
+			    <th></th>
+			    <th></th>
+			    <th></th> 
+			</tr> 
+		</thead>
+		</table>
 		
+	</div>	
+	<div id="output"></div>
 </body>
 
 	<script type="text/javascript">
 		$( document ).ready( function() {
+			var session = <?php echo json_encode($sessionVars); ?>;			
+		
 			// jquery $.ajax calls
-
-			var host = <?php echo "'".$_host."'" ?>;
-			var port = <?php echo "'".$_port."'" ?>;
-			var scheme = <?php echo "'".$_scheme."'" ?>;
-
-			var obj_queries = <?php echo json_encode($ar_queries); ?>;
+			var host = session.host;
+			var port = session.port;
+			var scheme = session.scheme;
 			
 			//listen for ajax complete
 			$.when( 
 				doAPIRequest(host, port, scheme, <?php echo "'".$whoami."'" ?>, 'GET', '', "whoami"),
 	    		doAPIRequest(host, port, scheme, <?php echo "'".$groups."'" ?>, 'GET', '', "groups"),
-				doAPIRequest(host, port, scheme, <?php echo "'".$gradeobjs."'" ?>, 'GET', '', "gradeobjs")
-	    		
+				doAPIRequest(host, port, scheme, <?php echo "'".$gradeobjs."'" ?>, 'GET', '', "gradeobjs"),
+				doAPIRequest(host, port, scheme, <?php echo "'".$classlist."'" ?>, 'GET', '', "classlist")
 	    	).done( function(){	
-	    		
 				// aftert all ajax calls done... check returned objects stored in APIObj
-				
-	    		console.log(APIObj);
-	    		//var s = APIObj["whoami"].FirstName + " " + APIObj["whoami"].LastName ;
-	    		//$("#output").html("Current User: " + s);	
-	    		
+				//console.log(APIObj);
+	    		TableHeader("table_scores");
+	    		ManageObjs(session);	
 	    	});	 	
 	    	
 			 	
 		});
 	</script>
-	
+	<script src="doAPIRequest.js"></script>
 </html>

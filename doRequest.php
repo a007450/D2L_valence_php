@@ -45,7 +45,7 @@ $userId = $_SESSION['defaultUserId'];
 $userKey = $_SESSION['defaultUserKey'];
 
 
-if ($_GET['objkey'] == 'whoami') {
+if ($_GET['defaultuid'] == false) {
 	$userId = $_SESSION['userId'];
 	$userKey = $_SESSION['userKey'];
 }

@@ -37,8 +37,7 @@ function Authenticate(){
 	$scheme = $_SESSION['scheme'];
 	$appId = $_SESSION['appId'];
 	$appKey = $_SESSION['appKey'];
-	$orgUnit = $_SESSION['orgUnit'];
-	$groupcatId = $_SESSION['groupcatId'];
+	
 	$redirectPage = $_SESSION["HTTP_REFERER"];
 	
 	session_write_close();

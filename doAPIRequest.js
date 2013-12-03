@@ -77,62 +77,82 @@ function TableHeader(){
 
 
 function ManageObjs(session) {
-	DoRow(0, session);
-	DoRow(1, session);
-	DoRow(2, session);
-	
-}
-
-function DoRow(i, session) {
-	// get quiz scores -- loop through groups --> get SIDs in each group; 
-	// loop through quizzes to get scores for each SID
-	var groups = APIObj.groups, 
-		gradeobj = APIObj.gradeobjs,
-		count = 0, 
-		s = 0, j = 0,
-		html_row = "",
-		sid_ar;
-	
-	//for each group
-	
-		grp_name = groups[i].Name;
-		html_row = "<tr><td>" + grp_name + "</td>";
-	
-		sid_ar = groups[i].Enrollments; // array of SIDs in group
+	var i = 0, j = 0;
 		
-		groupAvg = 0;
+	// build table
+	// build table row framework	
+	for (i = 0; i < APIObj.groups.length; i ++) {
+		html_row = "<tr><td>" + APIObj.groups[i].Name + "</td>";
 		
-		// loop through each quiz to get gradeobjid
-		for (j = 0 ; j < gradeobj.length; j++) {
-			gradeobjid = gradeobj[j].Id;	
-			
+		for (j = 0; j < APIObj.gradeobjs.length; j ++) {
 			html_row += "<td id=row_'" + i + "_"+ j +"'>N/A";
+			html_row += "</td>";	
 			
-			// for each student in the group
-			for (s = 0 ; s < sid_ar.length ; s++) {
-				
-				sid = sid_ar[s];
-				qstring = session.urlRefle + session.orgUnit +"/grades/" + gradeobjid +"/values/" + sid;
-				k = "grp" + i + "_sid" + s + "_q" + j;
-				
-				$.when( 
-					x = {key: k, i :i, j: j, s: s},
-					doAPIRequest(session.host, session.port, session.scheme, qstring, 'GET', '', k)
-					
-				).done( function(x, data, textStatus, jqXHR){
-		    		count = sid_ar.length * gradeobj.length;
-		    		
-		    		$('#output').html("Retrieved scores... " + count );
-					
-					console.log(x.key);
-		    	});
-			};
-			
-			html_row += "</td>";
-		};
-		
+		}
 		
 		html_row += "</tr>"; // end team row
 		$("#table_scores").append(html_row);
+	}
+		
+	// params: group#, quiz#, session info
+	DoRow(0, 1, session);
+	
+	
+}
+
+function DoRow(i, j, session) {
+	// get quiz scores -- loop through groups --> get SIDs in each group; 
+	// loop through quizzes to get scores for each SID
+	var groups = APIObj.groups, 
+		gradeobjs = APIObj.gradeobjs,
+		count = 0,
+		groupSum = 0, 
+		groupAvg;
+		s = 0, 
+		html_row = "",
+		sid_ar = [];
+		
+		// array of SIDs in group
+		sid_ar = groups[i].Enrollments; 
+		
+		//group ref
+		grp_name = groups[i].Name;
+
+		//quiz ref
+		gradeobjid = gradeobjs[j].Id;	
+		
+		// for each student in the group
+		for (s = 0 ; s < sid_ar.length ; s++) {
+				
+			sid = sid_ar[s];
+				// query string for getting quiz grade for specific student
+			qstring = session.urlRefle + session.orgUnit +"/grades/" + gradeobjid +"/values/" + sid;
+			k = "grp" + i + "_q" + j + "_sid" + s;
+				
+			$.when( 
+				x = {key: k, i :i, j: j, s: s},
+				doAPIRequest(session.host, session.port, session.scheme, qstring, 'GET', '', k)
+					
+			).done( function(x, data){
+		   		grade = JSON.parse(data[0]);
+		    				    		
+		   		if (grade.PointsNumerator != null) {
+		   			groupSum += grade.PointsNumerator;
+		   			count ++;
+		   		}
+		    		
+		   		if (count == sid_ar.length) {
+		   			groupAvg = groupSum/count;
+		   			$('#row_' + i + '_' + j).html(groupAvg);
+		   			console.log(grade.PointsNumerator + "/" + grade.PointsDenominator );
+		   		}
+		    		
+		    		
+		   		$('#output').html("Retrieved scores... " + count + ", ref: " + groupAvg);
+				
+		   	});
+		};
+		
+		
 }
 

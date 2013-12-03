@@ -22,12 +22,15 @@
 	
 	// build query strings
 	$whoami = $urlReflp . "users/whoami";
-    //$enrollments = $urlReflp . "enrollments/myenrollments/";
+    $enrollments = $urlReflp . "enrollments/myenrollments/";
     $classlist = $urlRefle . $_orgUnit . "/classlist/";
     $groups = $urlReflp . $_orgUnit . "/groupcategories/" . $_groupcatId . "/groups/";
     $gradeobjs = $urlRefle . $_orgUnit . "/grades/";
 	
 	$ar_queries = array(
+		'enrollments' =>$enrollments,
+		'orgUnit' => $_orgUnit,
+		'catId' => $_groupcatId,
 		'classlist' => $classlist, 
 		'groups' => $groups, 
 		'gradeobjs' => $gradeobjs
@@ -70,9 +73,12 @@
 			$.when( 
 				doAPIRequest(host, port, scheme, <?php echo "'".$whoami."'" ?>, 'GET', '', "whoami"),
 	    		doAPIRequest(host, port, scheme, <?php echo "'".$groups."'" ?>, 'GET', '', "groups"),
-				doAPIRequest(host, port, scheme, <?php echo "'".$gradeobjs."'" ?>, 'GET', '', "gradeobjs")
+				doAPIRequest(host, port, scheme, <?php echo "'".$gradeobjs."'" ?>, 'GET', '', "gradeobjs"),
+				doAPIRequest(host, port, scheme, <?php echo "'".$classlist."'" ?>, 'GET', '', "classlist")
+				
 	    		
 	    	).done( function(){	
+	    		ManageObjs(obj_queries.orgUnit, obj_queries.catId, host, port, scheme );
 	    		
 				// aftert all ajax calls done... check returned objects stored in APIObj
 				

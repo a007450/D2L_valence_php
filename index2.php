@@ -45,7 +45,9 @@
 		'whoami' => $whoami,
 		'classlist' => $classlist, 
 		'groups' => $groups, 
-		'gradeobjs' => $gradeobjs
+		'gradeobjs' => $gradeobjs,
+		'userId' => $_SESSION['userId'],
+		'userKey' => $_SESSION['userKey']
 		
 	);
 	
@@ -58,9 +60,11 @@
 	
 <head>
 	<meta charset="UTF-8">
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js" type = "text/javascript"></script>
-	<script> src="plugins/" </script>
-	<script> src="plugins/__jquery.tablesorter/jquery.tablesorter.js" </script>
+	
+	<script src="jquery/jquery-latest.js" type="text/javascript"></script>
+	<script src="jquery/jquery.tablesorter.js" type="text/javascript"></script>
+	<script src="jquery/jquery.metadata.js" type="text/javascript"></script>
+	
 	<link href="css/tablestyle.css" type="text/css" rel="stylesheet">
 	<link href="css/default.css" type="text/css" rel="stylesheet">
 	
@@ -70,7 +74,7 @@
 		<table id="table_scores" class="tablesorter"> 
 		<thead> 
 			<tr> 
-			    <th></th> 
+			    <th class="{sorter: false}"></th> 
 			    <th></th> 
 			    <th></th> 
 			    <th></th> 
@@ -79,16 +83,20 @@
 			    <th></th> 
 			</tr> 
 		</thead>
+		<tbody>
+		</tbody> 
 		</table>
 		
 	</div>	
-	<div id="output"></div>
+	<div id="output">Loading data...</div>
 </body>
 
 	<script type="text/javascript">
 		$( document ).ready( function() {
+			
+			
 			var session = <?php echo json_encode($sessionVars); ?>;			
-		
+				
 			// jquery $.ajax calls
 			var host = session.host;
 			var port = session.port;
@@ -106,6 +114,7 @@
 	    		TableHeader("table_scores");
 	    		ManageObjs(session);	
 	    	});	 	
+	    	
 	    	
 			 	
 		});

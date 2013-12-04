@@ -41,15 +41,16 @@ foreach (array('appId', 'appKey') as $e) {
 $appKey = $_SESSION['appKey'];
 $appId = $_SESSION['appId'];
 
-$userId = $_SESSION['defaultUserId'];
-$userKey = $_SESSION['defaultUserKey'];
 
 
-if ($_GET['defaultuid'] == false) {
+
+if ($_GET['defaultuid'] == "user") {
 	$userId = $_SESSION['userId'];
 	$userKey = $_SESSION['userKey'];
+}else {
+	$userId = $_SESSION['defaultUserId'];
+	$userKey = $_SESSION['defaultUserKey'];
 }
-
 
 $_SESSION['host'] = $host;
 $_SESSION['port'] = $port;

@@ -5,15 +5,18 @@
  * Loading functions for custom app:
  * After authenticated through Valance API, gets JSON objects from API calls 
  ******************************************************************************/
-var APIObj = {};
 
+var APIObj = {},   	// refers to objects returned from AJAX valence calls
+	count = 0,		// tracks d/l AJAX progress
+	Badges = {}; 	// tracks badges for each team
+	
 function doAPIRequest(host, port, scheme, req, method, data, objkey) {
 		//console.log( req );
 		
-		var default_uid = true;
+		var default_uid = 'default';
 		if (objkey =='whoami')
-			default_uid = false;
-			
+			default_uid = 'user';
+		
 		return $.ajax({
 			url: "doRequest.php",
 			data: {
@@ -39,7 +42,8 @@ function doAPIRequest(host, port, scheme, req, method, data, objkey) {
 						output = "";
 								
 						APIObj[objkey] = obj;
-												
+						
+											
 					} catch(e) {
 						output = "Unexpected non-JSON response from the server: " + data ;
 						//console.log("ajax error: " + output);
@@ -65,14 +69,13 @@ function TableHeader(){
 			
 		gradeobj = ar[quizid];
 		
-		htmltext = (i == 0)? "Team" : gradeobj.Name;
+		htmltext = (i == 0)? "Team" :gradeobj.Name  +  "<span class='small'><br>/" + APIObj.gradeobjs[quizid].MaxPoints + "</span>";
 		
 		
 		$( "th:nth-child("+colid+")" ).html(htmltext);
 		
 	}
 	
-	//console.log(header.html());	
 }
 
 
@@ -82,30 +85,36 @@ function ManageObjs(session) {
 	// build table
 	// build table row framework	
 	for (i = 0; i < APIObj.groups.length; i ++) {
-		html_row = "<tr><td>" + APIObj.groups[i].Name + "</td>";
+		html_row = "<tr><td class = 'teamName'>" + APIObj.groups[i].Name + "</td>";
 		
 		for (j = 0; j < APIObj.gradeobjs.length; j ++) {
-			html_row += "<td id=row_'" + i + "_"+ j +"'>N/A";
-			html_row += "</td>";	
-			
+			html_row += "<td id='row_" + i + "_"+ j +"'> N/A </td>";	
 		}
 		
 		html_row += "</tr>"; // end team row
-		$("#table_scores").append(html_row);
-	}
+		$("#table_scores tbody").append(html_row);
 		
-	// params: group#, quiz#, session info
-	DoRow(0, 1, session);
+	}
 	
 	
+	for (i = 0; i < APIObj.groups.length; i ++) {
+
+		for (j = 0; j < APIObj.gradeobjs.length; j ++) {
+			DoRow(i, j, session);
+		}
+		
+	}
+	
+	// for logged in user score
+	console.log(APIObj.whoami);	
 }
 
 function DoRow(i, j, session) {
-	// get quiz scores -- loop through groups --> get SIDs in each group; 
+	// get quiz scores -- loop through group i, quiz j --> get SIDs in each group; 
 	// loop through quizzes to get scores for each SID
 	var groups = APIObj.groups, 
 		gradeobjs = APIObj.gradeobjs,
-		count = 0,
+		groupTtl = 0,
 		groupSum = 0, 
 		groupAvg;
 		s = 0, 
@@ -134,25 +143,34 @@ function DoRow(i, j, session) {
 				doAPIRequest(session.host, session.port, session.scheme, qstring, 'GET', '', k)
 					
 			).done( function(x, data){
+				
 		   		grade = JSON.parse(data[0]);
-		    				    		
+		    	count++;
+		    	$('#output').html(count + "...retrieving group..." + groups[i].Name );
+		    	    		
 		   		if (grade.PointsNumerator != null) {
 		   			groupSum += grade.PointsNumerator;
-		   			count ++;
+		   			groupTtl ++;
 		   		}
 		    		
-		   		if (count == sid_ar.length) {
-		   			groupAvg = groupSum/count;
-		   			$('#row_' + i + '_' + j).html(groupAvg);
-		   			console.log(grade.PointsNumerator + "/" + grade.PointsDenominator );
+		   		if (groupTtl == sid_ar.length) {
+		   			groupAvg = groupSum/groupTtl;
+		   			$('#row_' + i + '_' + j).html( "<span class='grade'> " + groupAvg + "</span>");
+		   			
+		   			// last group
+		   			if (i == groups.length-1)
+		   				$('#output').html("Done loading table of AVERAGE TEAM scores");
+		   				setTimeout(function() {
+						   $('#output').html("");
+						  $("#table_scores").tablesorter(); 
+						}, 1000);
 		   		}
-		    		
-		    		
-		   		$('#output').html("Retrieved scores... " + count + ", ref: " + groupAvg);
+		    	
+		   		
 				
 		   	});
 		};
 		
-		
 }
+
 

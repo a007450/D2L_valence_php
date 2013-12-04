@@ -18,12 +18,18 @@ table.tablesorter thead tr .header {
 	background-repeat: no-repeat;
 	background-position: center right;
 	cursor: pointer;
+	background-image: url("table_blue/bg.gif");
 }
+table.tablesorter thead tr .small{
+	font-size: 0.8em;
+	font-weight:lighter;
+}
+
 table.tablesorter tbody td {
 	color: #3D3D3D;
 	padding: 4px;
 	background-color: #FFF;
-	vertical-align: center;
+	vertical-align: middle;
 	text-align: center;
 	height: 50px;
 }

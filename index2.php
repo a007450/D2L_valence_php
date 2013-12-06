@@ -1,12 +1,11 @@
 <?php
-	//require_once 'libsrc/D2LAppContextFactory.php';
+	require_once 'libsrc/D2LAppContextFactory.php';
 	$_host; $_port; $_scheme; $_targetUrl; $_orgUnit;
     
     $urlReflp = "/d2l/api/lp/1.3/"; 
     $urlRefle = "/d2l/api/le/1.3/";
 	
 	session_start();
-	
 	// retrieving session vars
 	$_host = $_SESSION['host'];
 	$_port = $_SESSION['port'];
@@ -15,9 +14,37 @@
 	$_appKey = $_SESSION['appKey'];
 	$_orgUnit = $_SESSION['orgUnit'];
 	$_groupcatId = $_SESSION['groupcatId'];
-	$_SESSION['userId'] =  $_GET["x_a"];
-	$_SESSION['userKey'] =  $_GET["x_b"];
+	$userId = 'no id';
+	$userKey = 'no key';
 	
+	if (!isset($_SESSION['userId']) || !isset($_SESSION['userKey'])) {
+		$authContextFactory = new D2LAppContextFactory();
+		$authContext = $authContextFactory->createSecurityContext($appId, $appKey);
+		$hostSpec = new D2LHostSpec($host, $port, $scheme);
+		$opContext = $authContext->createUserContextFromHostSpec($hostSpec, null, null, $_SERVER["REQUEST_URI"]);
+	
+		if ($opContext!=null) {
+		    $userId = $opContext->getUserId();
+		    $userKey = $opContext->getUserKey();
+		} else if (isset($_GET['x_a']) && isset($_GET['x_b'])) {
+			$userId = $_GET["x_a"];
+			$userKey = $_GET["x_b"];
+		} else {
+			$userId = '000';
+			$userKey = '000';
+		    throw new Exception('PROBLEM GETTING USERID, KEY...not set' );
+		}
+		
+		
+	}else {
+		$userId = '001';
+		$userKey = '001';
+	    throw new Exception('PROBLEM GETTING USERID, KEY...set?' );
+	}
+	
+	$_SESSION['userId'] = $userId;
+	$_SESSION['userKey'] = $userKey;
+		
 	if (!$orgUnit) {
 		// --- ONLY WORKS if widget is on d2l course home page-- grabs from URL 
 		// https://learn.bcit.ca/d2l/home/{OUID}
@@ -27,7 +54,7 @@
 		
 	}
 	
-	session_write_close();
+	
 	
 	// build query strings
 	$whoami = $urlReflp . "users/whoami";
@@ -46,12 +73,13 @@
 		'classlist' => $classlist, 
 		'groups' => $groups, 
 		'gradeobjs' => $gradeobjs,
-		'userId' => $_SESSION['userId'],
-		'userKey' => $_SESSION['userKey']
+		'userId' => $userId,
+		'userKey' => $userKey,
+		'opContext' => $opContext
 		
 	);
 	
-	
+	session_write_close();
 	
 ?>
 
@@ -70,17 +98,21 @@
 	
 </head>
 <body>
-	<div id="leaderboard_container">	
+	<div id="leaderboard_container" >	
 		<table id="table_scores" class="tablesorter"> 
 		<thead> 
 			<tr> 
-			    <th class="{sorter: false}"></th> 
-			    <th></th> 
-			    <th></th> 
-			    <th></th> 
-			    <th></th>
-			    <th></th>
-			    <th></th> 
+			    
+			</tr> 
+		</thead>
+		<tbody>
+		</tbody> 
+		</table>
+		
+		<table id="table_badges" > 
+		<thead> 
+			<tr> 
+			    
 			</tr> 
 		</thead>
 		<tbody>
@@ -90,10 +122,10 @@
 	</div>	
 	<div id="output">Loading data...</div>
 </body>
-
+	<script src="doAPIRequest.js"></script>
 	<script type="text/javascript">
 		$( document ).ready( function() {
-			
+			$("#table_scores").tablesorter();
 			
 			var session = <?php echo json_encode($sessionVars); ?>;			
 				
@@ -101,7 +133,7 @@
 			var host = session.host;
 			var port = session.port;
 			var scheme = session.scheme;
-			
+			console.log(session);
 			//listen for ajax complete
 			$.when( 
 				doAPIRequest(host, port, scheme, <?php echo "'".$whoami."'" ?>, 'GET', '', "whoami"),
@@ -110,8 +142,8 @@
 				doAPIRequest(host, port, scheme, <?php echo "'".$classlist."'" ?>, 'GET', '', "classlist")
 	    	).done( function(){	
 				// aftert all ajax calls done... check returned objects stored in APIObj
-				//console.log(APIObj);
-	    		TableHeader("table_scores");
+				console.log(APIObj);
+	    		TableHeader("#table_scores");
 	    		ManageObjs(session);	
 	    	});	 	
 	    	
@@ -119,5 +151,5 @@
 			 	
 		});
 	</script>
-	<script src="doAPIRequest.js"></script>
+	
 </html>

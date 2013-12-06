@@ -40,7 +40,9 @@ foreach (array('appId', 'appKey') as $e) {
 
 $appKey = $_SESSION['appKey'];
 $appId = $_SESSION['appId'];
-
+$_SESSION['host'] = $host;
+$_SESSION['port'] = $port;
+$_SESSION['scheme'] = $scheme;
 
 
 
@@ -52,15 +54,12 @@ if ($_GET['defaultuid'] == "user") {
 	$userKey = $_SESSION['defaultUserKey'];
 }
 
-$_SESSION['host'] = $host;
-$_SESSION['port'] = $port;
-$_SESSION['scheme'] = $scheme;
+
 session_write_close();
 
 $authContextFactory = new D2LAppContextFactory();
 $authContext = $authContextFactory->createSecurityContext($appId, $appKey);
 $hostSpec = new D2LHostSpec($host, $port, $scheme);
-
 $opContext = $authContext->createUserContextFromHostSpec($hostSpec, $userId, $userKey);
 
 $ch = curl_init();

@@ -14,7 +14,7 @@
 	$_SESSION['defaultUserKey'] = 'IBzfXNTS8yn2CXQgu7n57N';
 	
 	// enter url of redirect pg after login
-	$_SESSION["HTTP_REFERER"] = 'http://localhost/~vienna/D2L_valence_php/index2.php';  
+	$_SESSION["HTTP_REFERER"] = 'https://ltc.bcit.ca/multimedia_demo/D2L_API/getGroupedQuizScores/V4_UI_rowbyrow/index2.php';  
 	
 	// enter org unit or use "" to grab the orgUnit from course home pg url
 	// ONLY WORKS IF THE WIDGET IS EMBEDDED IN D2L COURSE HOME PAGE
